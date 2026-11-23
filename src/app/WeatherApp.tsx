@@ -10,12 +10,13 @@ import { DailyList } from '../ui/DailyList'
 import { HourlyStrip } from '../ui/HourlyStrip'
 import { NowCard } from '../ui/NowCard'
 import { useColorMode } from './colorMode'
+import type { AppConfig } from './config'
 
-export const WeatherApp: React.FC = () => {
+export const WeatherApp: React.FC<{ config: AppConfig }> = ({ config }) => {
   useColorMode()
   const places = useSavedPlaces()
   const device = useDevicePlace(places.choose)
-  const forecast = useForecast(places.selected)
+  const forecast = useForecast(config.forecastUrl, places.selected)
 
   return (
     <main className="app">

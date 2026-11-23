@@ -3,6 +3,6 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [react()],
-  // In `npm run dev`, forecasts come from the Worker running under `npm start` on 8787.
-  server: { proxy: { '/api': 'http://localhost:8787' } },
+  // In `npm run dev`, /api goes to a local deepdiary-backend (API_PROXY picks another one).
+  server: { proxy: { '/api': process.env.API_PROXY ?? 'http://localhost:8080' } },
 })

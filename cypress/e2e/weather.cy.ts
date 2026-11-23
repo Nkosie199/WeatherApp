@@ -1,4 +1,4 @@
-// Runs against `npm start`: the built app and the Worker, with real forecasts from MET Norway.
+// Runs against `npm run dev` and a local deepdiary-backend, with real forecasts from MET Norway.
 
 describe('Weather', () => {
   beforeEach(() => {
@@ -52,17 +52,13 @@ describe('Weather', () => {
     cy.contains('No towns or cities match "Qqqzzz".')
   })
 
-  it('answers forecasts from the Worker with MET\'s cache lifetime', () => {
-    cy.request('/api/forecast?lat=-33.92&lon=18.42').then(response => {
+  it('gets forecasts from deepdiary-backend with MET\'s cache lifetime', () => {
+    cy.request('/api/public/weather/forecast?lat=-33.92&lon=18.42').then(response => {
       expect(response.status).to.eq(200)
-      expect(response.headers['cache-control']).to.match(/^public, max-age=\d+$/)
+      expect(response.headers['cache-control']).to.match(/^max-age=\d+, public$/)
       expect(response.body.properties.timeseries.length).to.be.greaterThan(40)
     })
-    cy.request({ url: '/api/forecast?lat=nope', failOnStatusCode: false }).its('status').should('eq', 400)
-  })
-
-  it('may only be framed by DeepDiary', () => {
-    cy.request('/').its('headers.content-security-policy').should('match', /^frame-ancestors /)
+    cy.request({ url: '/api/public/weather/forecast?lat=nope', failOnStatusCode: false }).its('status').should('eq', 400)
   })
 })
 

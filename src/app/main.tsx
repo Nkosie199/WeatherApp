@@ -1,10 +1,11 @@
 import * as React from 'react'
 import { createRoot } from 'react-dom/client'
+import { readConfig } from './config'
 import './styles.css'
 import { WeatherApp } from './WeatherApp'
 
 createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <WeatherApp />
+    <WeatherApp config={readConfig(import.meta.env)} />
   </React.StrictMode>,
 )

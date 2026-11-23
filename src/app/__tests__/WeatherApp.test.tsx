@@ -4,14 +4,18 @@ import * as React from 'react'
 import { fakeResponse } from '../../test-support/fakeResponse'
 import durban from '../../test-support/metDurban.json'
 import { COLOR_MODE_MESSAGE, colorModeFrom } from '../colorMode'
-import { WeatherApp } from '../WeatherApp'
+import { readConfig } from '../config'
+import { WeatherApp as App } from '../WeatherApp'
+
+const config = { forecastUrl: 'https://api.test/api/public/weather/forecast' }
+const WeatherApp = () => <App config={config} />
 
 const PLACES = 'Africa/Johannesburg\nDurban\tZA\t-29.86\t31.03\t0\nDurbanville\tZA\t-33.83\t18.65\t0\n'
 const FORECAST_TIME = new Date('2026-11-23T05:20:00Z')
 
 function respond(url: string): Response {
   if (url === '/places.tsv') return fakeResponse(PLACES)
-  if (url.startsWith('/api/forecast')) return fakeResponse(JSON.stringify(durban))
+  if (url.startsWith(config.forecastUrl)) return fakeResponse(JSON.stringify(durban))
   return fakeResponse('', 404)
 }
 
@@ -41,7 +45,7 @@ describe('WeatherApp', () => {
     expect(within(screen.getByRole('region', { name: 'Durban' })).getByText('23°')).toBeInTheDocument()
     expect(screen.getByRole('list', { name: 'Hourly forecast' }).children).toHaveLength(24)
     expect(screen.getByRole('heading', { name: /^Next \d+ days$/ })).toBeInTheDocument()
-    expect(globalThis.fetch).toHaveBeenCalledWith('/api/forecast?lat=-29.86&lon=31.03')
+    expect(globalThis.fetch).toHaveBeenCalledWith('https://api.test/api/public/weather/forecast?lat=-29.86&lon=31.03')
     expect(JSON.parse(localStorage.getItem('weather.places') ?? '{}').selected.name).toBe('Durban')
   })
 
@@ -69,5 +73,13 @@ describe('colorModeFrom', () => {
     expect(colorModeFrom({ type: COLOR_MODE_MESSAGE, mode: 'pink' })).toBeNull()
     expect(colorModeFrom({ type: 'OTHER', mode: 'dark' })).toBeNull()
     expect(colorModeFrom(null)).toBeNull()
+  })
+})
+
+describe('readConfig', () => {
+  it('uses the production backend, the dev proxy, or what the build sets', () => {
+    expect(readConfig({ DEV: false }).forecastUrl).toBe('https://api.deepdiary.mynger.com/api/public/weather/forecast')
+    expect(readConfig({ DEV: true }).forecastUrl).toBe('/api/public/weather/forecast')
+    expect(readConfig({ DEV: false, VITE_API_URL: 'https://api.test/api' }).forecastUrl).toBe('https://api.test/api/public/weather/forecast')
   })
 })
