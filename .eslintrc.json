@@ -1,0 +1,12 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint", "react-hooks"],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:react-hooks/recommended"],
+  "env": { "browser": true, "es2021": true, "jest": true, "node": true },
+  "rules": {
+    "eqeqeq": "error",
+    "no-console": "error"
+  },
+  "overrides": [{ "files": ["worker/**/*.ts"], "excludedFiles": ["worker/__tests__/**"], "rules": { "no-console": ["error", { "allow": ["error"] }] } }]
+}
