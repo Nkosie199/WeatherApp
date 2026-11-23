@@ -8,11 +8,11 @@ export type ForecastState =
   | { status: 'ready'; summary: Summary; stale: boolean }
   | { status: 'failed'; message: string }
 
-// Reopening the app after this long fetches again; the Worker and browser caches make most of these free.
+// Reopening the app after this long fetches again; the backend and browser caches make most of these free.
 const REFRESH_AFTER_MS = 10 * 60 * 1000
 
 /** The forecast for a place, loaded when the place changes and again when the app is reopened later. */
-export function useForecast(place: Place | null): ForecastState {
+export function useForecast(forecastUrl: string, place: Place | null): ForecastState {
   const [state, setState] = React.useState<ForecastState>({ status: 'loading' })
   const [loadedAt, setLoadedAt] = React.useState(0)
   const [refreshes, setRefreshes] = React.useState(0)
@@ -33,7 +33,7 @@ export function useForecast(place: Place | null): ForecastState {
     // A refresh keeps showing the current forecast until the new one arrives; a new place starts blank.
     if (shownPlace.current !== place) setState({ status: 'loading' })
     shownPlace.current = place
-    fetchForecast(place)
+    fetchForecast(forecastUrl, place)
       .then(next => {
         if (!current) return
         setState(next)
@@ -42,14 +42,14 @@ export function useForecast(place: Place | null): ForecastState {
     return () => {
       current = false
     }
-  }, [place, refreshes])
+  }, [forecastUrl, place, refreshes])
 
   return state
 }
 
-async function fetchForecast(place: Place): Promise<ForecastState> {
+async function fetchForecast(forecastUrl: string, place: Place): Promise<ForecastState> {
   try {
-    const response = await fetch(`/api/forecast?lat=${place.lat}&lon=${place.lon}`)
+    const response = await fetch(`${forecastUrl}?lat=${place.lat}&lon=${place.lon}`)
     if (!response.ok) return { status: 'failed', message: 'The forecast isn\'t available right now. Try again in a few minutes.' }
     const summary = summarize((await response.json()) as MetForecast, place.timeZone, Date.now())
     if (!summary) return { status: 'failed', message: 'There\'s no forecast for this place right now.' }

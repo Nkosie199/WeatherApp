@@ -7,6 +7,5 @@
   "rules": {
     "eqeqeq": "error",
     "no-console": "error"
-  },
-  "overrides": [{ "files": ["worker/**/*.ts"], "excludedFiles": ["worker/__tests__/**"], "rules": { "no-console": ["error", { "allow": ["error"] }] } }]
+  }
 }

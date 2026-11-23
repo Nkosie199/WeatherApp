@@ -15,5 +15,5 @@
     "newLine": "lf",
     "types": ["jest", "@testing-library/jest-dom", "vite/client"]
   },
-  "include": ["src", "worker"]
+  "include": ["src"]
 }
