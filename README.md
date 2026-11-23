@@ -145,9 +145,11 @@ npx wrangler login   # once, with the Cloudflare account that will host Weather
 npm run deploy       # builds and deploys the Worker and the app
 ```
 
-Then point the planned address, `https://weather.mynger.com`, at the Worker, using a custom domain in the
-Cloudflare dashboard. DeepDiary's production build frames that address, or `REACT_APP_WEATHER_URL` if it's set.
-To let more sites frame Weather, add them to `FRAME_ANCESTORS` in `wrangler.toml`.
+Then give the Worker its address (planned: `https://weather.mynger.com`) as a custom domain in the Cloudflare
+dashboard. DeepDiary's production build hides its Weather page until `REACT_APP_WEATHER_URL` is set to that
+address in its build environment (Amplify), so DeepDiary can ship before Weather is live. In local development,
+DeepDiary uses `http://localhost:8787`. To let more sites frame Weather, add them to `FRAME_ANCESTORS` in
+`wrangler.toml`.
 
 On Cloudflare's free plan, Workers run up to 100,000 requests a day. Static files don't count toward that, so in
 practice it covers page loads and forecast requests. MET asks that total traffic stay under 20 requests a second.
